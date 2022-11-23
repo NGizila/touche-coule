@@ -118,6 +118,7 @@ const useBoard = (wallet: ReturnType<typeof useWallet>) => {
     await updateRegistered()
     await updateTouched()
     console.log('Registering')
+    console.log('Touched', onTouched)
     wallet.contract.on('Registered', onRegistered)
     wallet.contract.on('Touched', onTouched)
     return () => {
@@ -131,9 +132,26 @@ const useBoard = (wallet: ReturnType<typeof useWallet>) => {
 
 const Buttons = ({ wallet }: { wallet: ReturnType<typeof useWallet> }) => {
   const next = () => wallet?.contract.turn()
+  const register = () => {     
+    wallet?.contract.register();
+    // const addr = await wallet?.contract.createShip();
+    // console.log('addr',addr);
+    // console.log('addr',addr.data);
+    // console.log('addr',addr.s);
+    // console.log('addr',addr.address);
+    // //wallet?.contract.register(addr.address);
+      
+    // // wallet?.contract.createShip()
+    // // .then( inst => {
+    // //   console.log('inst', inst.args);
+    // //   wallet?.contract.register(inst);
+    // // }
+    // //)  
+  }
+
   return (
     <div style={{ display: 'flex', gap: 5, padding: 5 }}>
-      <button onClick={() => {}}>Register</button>
+      <button onClick={register}>Register</button>
       <button onClick={next}>Turn</button>
     </div>
   )
