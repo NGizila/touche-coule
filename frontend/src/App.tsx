@@ -3,6 +3,7 @@ import styles from './styles.module.css'
 import * as ethereum from '@/lib/ethereum'
 import * as main from '@/lib/main'
 import { BigNumber } from 'ethers'
+import { isAddress } from 'ethers/lib/utils'
 
 type Canceler = () => void
 const useAffect = (
@@ -135,13 +136,15 @@ const Buttons = ({ wallet }: { wallet: ReturnType<typeof useWallet> }) => {
   const register = async () => {  
     wallet?.contract.setShip();
     wallet?.contract.createShip()
-    .then(data => {
-      console.log("Success ",data);
-      wallet?.contract.register(data);
-    })
-    .catch( err => {
-      console.log("Register error ",err);
-    })
+      .then(data => {
+        if(isAddress(data)) {
+          console.log("Success ",data);
+          wallet?.contract.register(data);
+        }
+      })
+      .catch( err => {
+        console.log("Register error ",err);
+      })
   }
 
   return (
@@ -162,18 +165,21 @@ export const App = () => {
     gridTemplateRows: `repeat(${board?.length ?? 0}, 1fr)`,
     gridTemplateColumns: `repeat(${board?.[0]?.length ?? 0}, 1fr)`,
   }
+  const hello = (x: any, y:any) => {
+    console.log("lol");
+  }
   return (
     <div className={styles.body}>
       <h1>Welcome to Touché Coulé</h1>
       <div className={styles.grid} style={st}>
-        {CELLS.fill(0).map((_, index) => {
-          const x = Math.floor(index % board?.length ?? 0)
-          const y = Math.floor(index / board?.[0]?.length ?? 0)
-          const background = board?.[x]?.[y] ? 'red' : undefined
-          return (
-            <div key={index} className={styles.cell} style={{ background }} />
-          )
-        })}
+          {CELLS.fill(0).map((_, index) => {
+            const x = Math.floor(index % board?.length ?? 0)
+            const y = Math.floor(index / board?.[0]?.length ?? 0)
+            const background = board?.[x]?.[y] ? 'red' : undefined
+            return (
+              <div key={index} className={styles.cell} style={{ background }} />
+            )
+          })}
       </div>
       <Buttons wallet={wallet} />
     </div>

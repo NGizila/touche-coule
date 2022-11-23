@@ -45,30 +45,14 @@ contract Main {
   function setShip() external {
     TestShip ship = new TestShip();
     address shipAddress = address(ship);
-    shipAddr = shipAddress;
+    if(shipAddress != address(0x0))
+    {
+      shipAddr = shipAddress;
+    }
   }
 
-  function createShip() external returns (address) { 
-    return shipAddr; 
-  }
-
-function register2() external {
-  //   factorShip = new ShipFactory();
-  //   factorShip.createRandomShip("test");
-    require(index <= game.height * game.width, "Too much ship on board");
-    count[msg.sender] += 1;
-
-    TestShip ship = new TestShip();
-    address shipAddress = address(ship);
-
-    ships[index] = shipAddress;
-    owners[index] = msg.sender;
-    (uint x, uint y) = placeShip(index);
-    Ship(ships[index]).update(x, y);
-    emit Registered(index, msg.sender, x, y);
-    used[shipAddress]=true;
-    index += 1;
-    
+  function createShip() external view returns (address) { 
+    return shipAddr;
   }
 
   function register(address ship) external {
