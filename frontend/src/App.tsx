@@ -132,21 +132,16 @@ const useBoard = (wallet: ReturnType<typeof useWallet>) => {
 
 const Buttons = ({ wallet }: { wallet: ReturnType<typeof useWallet> }) => {
   const next = () => wallet?.contract.turn()
-  const register = () => {     
-    wallet?.contract.register();
-    // const addr = await wallet?.contract.createShip();
-    // console.log('addr',addr);
-    // console.log('addr',addr.data);
-    // console.log('addr',addr.s);
-    // console.log('addr',addr.address);
-    // //wallet?.contract.register(addr.address);
-      
-    // // wallet?.contract.createShip()
-    // // .then( inst => {
-    // //   console.log('inst', inst.args);
-    // //   wallet?.contract.register(inst);
-    // // }
-    // //)  
+  const register = async () => {  
+    wallet?.contract.setShip();
+    wallet?.contract.createShip()
+    .then(data => {
+      console.log("Success ",data);
+      wallet?.contract.register(data);
+    })
+    .catch( err => {
+      console.log("Register error ",err);
+    })
   }
 
   return (

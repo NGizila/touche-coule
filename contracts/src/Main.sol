@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8;
 
-import './Ship.sol';
-import 'hardhat/console.sol';
+import "./Ship.sol";
+//import "./ShipFactory.sol";
+import "hardhat/console.sol";
 
 struct Game {
   uint height;
@@ -22,6 +23,11 @@ contract Main {
 
   event Size(uint width, uint height);
   event Touched(uint ship, uint x, uint y);
+  event ShipGoesBrr(address shipAddr);
+
+  address shipAddr;
+  
+
   event Registered(
     uint indexed index,
     address indexed owner,
@@ -36,20 +42,53 @@ contract Main {
     emit Size(game.width, game.height);
   }
 
+  function setShip() external {
+    TestShip ship = new TestShip();
+    address shipAddress = address(ship);
+    shipAddr = shipAddress;
+  }
+
+  function createShip() external returns (address) { 
+    return shipAddr; 
+  }
+
+function register2() external {
+  //   factorShip = new ShipFactory();
+  //   factorShip.createRandomShip("test");
+    require(index <= game.height * game.width, "Too much ship on board");
+    count[msg.sender] += 1;
+
+    TestShip ship = new TestShip();
+    address shipAddress = address(ship);
+
+    ships[index] = shipAddress;
+    owners[index] = msg.sender;
+    (uint x, uint y) = placeShip(index);
+    Ship(ships[index]).update(x, y);
+    emit Registered(index, msg.sender, x, y);
+    used[shipAddress]=true;
+    index += 1;
+    
+  }
+
   function register(address ship) external {
-    require(count[msg.sender] < 2, 'Only two ships');
-    require(used[ship], 'Ship alread on the board');
-    require(index <= game.height * game.width, 'Too much ship on board');
+    require(count[msg.sender] < 2, "Only two ships");
+    require(!used[ship], "Ship alread on the board");
+    require(index <= game.height * game.width, "Too much ship on board");
     count[msg.sender] += 1;
     ships[index] = ship;
     owners[index] = msg.sender;
     (uint x, uint y) = placeShip(index);
     Ship(ships[index]).update(x, y);
     emit Registered(index, msg.sender, x, y);
+    used[ship]=true;
     index += 1;
   }
 
   function turn() external {
+    //factorShip = new ShipFactory();
+    //factorShip.createRandomShip("test");
+    
     bool[] memory touched = new bool[](index);
     for (uint i = 1; i < index; i++) {
       if (game.xs[i] < 0) continue;
@@ -65,10 +104,13 @@ contract Main {
         game.xs[i] = -1;
       }
     }
+
+   
   }
 
   function placeShip(uint idx) internal returns (uint, uint) {
-    Ship ship = Ship(ships[idx]);
+    //Ship ship = Ship(ships[idx]);
+    TestShip ship = TestShip(ships[idx]);
     (uint x, uint y) = ship.place(game.width, game.height);
     bool invalid = true;
     while (invalid) {
