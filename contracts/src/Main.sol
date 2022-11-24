@@ -23,9 +23,9 @@ contract Main {
 
   event Size(uint width, uint height);
   event Touched(uint ship, uint x, uint y);
-  event ShipGoesBrr(address shipAddr);
 
   address shipAddr;
+
   
 
   event Registered(
@@ -42,13 +42,13 @@ contract Main {
     emit Size(game.width, game.height);
   }
 
-  function setShip() external {
+  function setShip(uint256 x, uint256 y) external {
     TestShip ship = new TestShip();
-    address shipAddress = address(ship);
-    if(shipAddress != address(0x0))
-    {
-      shipAddr = shipAddress;
-    }
+    ship.update(x,y);
+    shipAddr = address(ship);
+    console.log("addr set ", shipAddr);
+    //TestShip ship = new TestShip();
+    //shipAddr = address(ship);
   }
 
   function createShip() external view returns (address) { 
@@ -93,8 +93,7 @@ contract Main {
   }
 
   function placeShip(uint idx) internal returns (uint, uint) {
-    //Ship ship = Ship(ships[idx]);
-    TestShip ship = TestShip(ships[idx]);
+    Ship ship = Ship(ships[idx]);
     (uint x, uint y) = ship.place(game.width, game.height);
     bool invalid = true;
     while (invalid) {

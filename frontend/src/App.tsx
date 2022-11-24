@@ -68,7 +68,7 @@ const useBoard = (wallet: ReturnType<typeof useWallet>) => {
       x: BigNumber,
       y: BigNumber
     ) => {
-      console.log('onRegistered')
+      console.log('onRegistered (owner) - ',owner)
       setBoard(board => {
         return board.map((x_, index) => {
           if (index !== x.toNumber()) return x_
@@ -134,7 +134,8 @@ const useBoard = (wallet: ReturnType<typeof useWallet>) => {
 const Buttons = ({ wallet }: { wallet: ReturnType<typeof useWallet> }) => {
   const next = () => wallet?.contract.turn()
   const register = async () => {  
-    wallet?.contract.setShip();
+    
+   // wallet?.contract.setShip();
     wallet?.contract.createShip()
       .then(data => {
         if(isAddress(data)) {
@@ -145,6 +146,7 @@ const Buttons = ({ wallet }: { wallet: ReturnType<typeof useWallet> }) => {
       .catch( err => {
         console.log("Register error ",err);
       })
+    
   }
 
   return (
@@ -165,8 +167,9 @@ export const App = () => {
     gridTemplateRows: `repeat(${board?.length ?? 0}, 1fr)`,
     gridTemplateColumns: `repeat(${board?.[0]?.length ?? 0}, 1fr)`,
   }
-  const hello = (x: any, y:any) => {
-    console.log("lol");
+  const clickMe = (x: GLint, y:GLint) => {
+    wallet?.contract.setShip(x,y);
+    console.log("coordinates ",x,y);
   }
   return (
     <div className={styles.body}>
@@ -177,7 +180,7 @@ export const App = () => {
             const y = Math.floor(index / board?.[0]?.length ?? 0)
             const background = board?.[x]?.[y] ? 'red' : undefined
             return (
-              <div key={index} className={styles.cell} style={{ background }} />
+              <div onClick={() => clickMe(x,y)} key={index} className={styles.cell} style={{ background }} />
             )
           })}
       </div>
