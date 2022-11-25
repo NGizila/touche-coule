@@ -14,6 +14,14 @@ contract TestShip is Ship{
   uint ys;
 
   function update(uint x, uint y) public override virtual {xs = x; ys=y;}
-  function fire() public override virtual returns (uint, uint) {return (5,5);}
-  function place(uint width, uint height) public override virtual returns (uint, uint) { return (xs,ys); }
+  function fire() public override virtual returns (uint, uint) {
+    // Auto destruction - friendly fire
+    return(xs,ys);
+  }
+  
+  function place(uint width, uint height) public override virtual returns (uint, uint) { 
+
+    return (xs,ys); 
+    
+    }
 }

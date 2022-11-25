@@ -16,6 +16,9 @@ struct Game {
 contract Main {
   Game private game;
   uint private index;
+  string[] listColor;
+  mapping(address => string) myColor;
+
   mapping(address => bool) private used;
   mapping(uint => address) private ships;
   mapping(uint => address) private owners;
@@ -26,7 +29,14 @@ contract Main {
 
   address shipAddr;
 
-  
+  // function setColor(string memory value,address key) external{
+  //   myColor[key] = value;
+  //   listColor.push(value);
+  // }
+
+  // function getColor(address index) external view returns (string[] memory){
+  //   return listColor;
+  // }
 
   event Registered(
     uint indexed index,
@@ -70,9 +80,6 @@ contract Main {
   }
 
   function turn() external {
-    //factorShip = new ShipFactory();
-    //factorShip.createRandomShip("test");
-    
     bool[] memory touched = new bool[](index);
     for (uint i = 1; i < index; i++) {
       if (game.xs[i] < 0) continue;

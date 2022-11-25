@@ -57,6 +57,12 @@ const useWallet = () => {
   }, [details, contract])
 }
 
+// function random_rgba() {
+//   var o = Math.round, r = Math.random, s = 255;
+//   return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + r().toFixed(1) + ')';
+// }
+// var color = random_rgba();
+
 type Ship = {}
 const useBoard = (wallet: ReturnType<typeof useWallet>) => {
   const [board, setBoard] = useState<(null | Ship)[][]>([])
@@ -69,6 +75,7 @@ const useBoard = (wallet: ReturnType<typeof useWallet>) => {
       y: BigNumber
     ) => {
       console.log('onRegistered (owner) - ',owner)
+      //wallet?.contract.setColor(color,owner);
       setBoard(board => {
         return board.map((x_, index) => {
           if (index !== x.toNumber()) return x_
@@ -157,6 +164,7 @@ const Buttons = ({ wallet }: { wallet: ReturnType<typeof useWallet> }) => {
   )
 }
 
+
 const CELLS = new Array(100 * 100)
 export const App = () => {
   const wallet = useWallet()
@@ -167,10 +175,24 @@ export const App = () => {
     gridTemplateRows: `repeat(${board?.length ?? 0}, 1fr)`,
     gridTemplateColumns: `repeat(${board?.[0]?.length ?? 0}, 1fr)`,
   }
+
+
   const clickMe = (x: GLint, y:GLint) => {
     wallet?.contract.setShip(x,y);
+    
+    console.log("acc ",wallet!.details.account);
     console.log("coordinates ",x,y);
+    
+    // let name1:string = wallet!.details.account || '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199';
+    // console.log("name ",name1);
+    // await wallet?.contract.getColor(name1)
+    // .then(data => {
+    //   console.log('get (color) - ',data );
+    // })
+    
+    
   }
+  
   return (
     <div className={styles.body}>
       <h1>Welcome to Touché Coulé</h1>
