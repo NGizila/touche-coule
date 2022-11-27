@@ -3,6 +3,16 @@
 Welcome to the DAAR project. The idea will be to implement a "Touché Coulé" (Battleship) game
 in a decentralized way, on Ethereum. This will have cool side effects, like not
 be forced to pay for servers.
+The project can't be run on Windows. Please, use WSL.
+
+
+#  Prérequis 
+
+ - NodeJs 
+ - Npm
+ - Hardhate
+ - Metamask
+
 
 # Installation
 
@@ -24,8 +34,6 @@ You’ll need to install dependencies. You’ll need [`HardHat`](https://hardhat
 
 Once everything is installed, launch the project (with `yarn dev`). You should have a local blockchain running in local. Open Metamask, setup it, and add an account from the Private Keys HardHat displays.
 Now you can connect Metamask to the blockchain. To do this, add a network by clicking on `Ethereum Mainnet` and `personalized RPC`. Here, you should be able to add a network.
-
-![Ganache Config](public/ganache-config.png)
 
 Once you have done it, you’re connected to the HardHat blockchain!
 
@@ -65,4 +73,26 @@ The idea of the game is to fight in a free for all style (every players will pla
 - Do all the same steps with a second ship and a second player. 
 - Test your implementation with the turn function. 
 
-Pro tip: you can automate the ship deployment and registering with the deployments. 
+Pro tip: you can automate the ship deployment and registering with the deployments. ## Documentation
+
+
+# Add account in Metamask 
+
+Once the project is launched, you can retrieve the private keys in the console. These will allow us to add ETH to our account
+
+# Reset account 
+
+For a good execution of the transaction, we are obliged to reset account in the parameters => Advanced => reset account
+
+
+# Button Register 
+
+the register button allows us to deposit in boats in the matrix.The boats are represented with different colors, each belonging to a respective account
+
+
+# Button Turn
+
+Once all the boats are placed on the matrix, the game will start by pressing turn. 
+each boat will shoot squares in the matrix, if a boat is hit it is sunk.
+
+![Ganache Config](public/ship.png)

@@ -3,7 +3,6 @@ import styles from './styles.module.css'
 import * as ethereum from '@/lib/ethereum'
 import * as main from '@/lib/main'
 import { BigNumber } from 'ethers'
-import { isAddress } from 'ethers/lib/utils'
 
 type Canceler = () => void
 const useAffect = (
@@ -60,6 +59,9 @@ const useWallet = () => {
 type Ship = {}
 const useBoard = (wallet: ReturnType<typeof useWallet>) => {
   const [board, setBoard] = useState<(null | Ship)[][]>([])
+  const [owners, setOwners] = useState<any>([])
+  const[winner, getWinner] = useState<any>(null)
+
   useAffect(async () => {
     if (!wallet) return
     const onRegistered = (
@@ -68,7 +70,14 @@ const useBoard = (wallet: ReturnType<typeof useWallet>) => {
       x: BigNumber,
       y: BigNumber
     ) => {
-      console.log('onRegistered (owner) - ',owner)
+      console.log('onRegistered')
+      setOwners(prev => {
+        if(prev.find(p => p.owner === owner)) return prev
+        return [...prev, {
+        owner,
+        color: generateHex()
+      }]}
+      )
       setBoard(board => {
         return board.map((x_, index) => {
           if (index !== x.toNumber()) return x_
@@ -88,10 +97,13 @@ const useBoard = (wallet: ReturnType<typeof useWallet>) => {
           if (index !== x) return x_
           return x_.map((y_, indey) => {
             if (indey !== y) return y_
-            return null
+            return -1
           })
         })
       })
+    }
+    const onWinner = (owner: any) => {
+      getWinner(owner);
     }
     const updateSize = async () => {
       const [event] = await wallet.contract.queryFilter('Size', 0)
@@ -106,6 +118,7 @@ const useBoard = (wallet: ReturnType<typeof useWallet>) => {
       registeredEvent.forEach(event => {
         const { index, owner, x, y } = event.args
         onRegistered(index, owner, x, y)
+        console.log("Owner: " + owner)
       })
     }
     const updateTouched = async () => {
@@ -115,43 +128,56 @@ const useBoard = (wallet: ReturnType<typeof useWallet>) => {
         onTouched(ship, x, y)
       })
     }
+    const updateWinner = async () => {
+      const winnerEvent = await wallet.contract.queryFilter('Winner', 0)
+      winnerEvent.forEach(event => {
+        const {owner} = event.args
+        onWinner(owner)
+      })
+    }
     await updateSize()
     await updateRegistered()
     await updateTouched()
+    await updateWinner()
     console.log('Registering')
-    console.log('Touched', onTouched)
     wallet.contract.on('Registered', onRegistered)
     wallet.contract.on('Touched', onTouched)
+    wallet.contract.on('Winner', onWinner)
     return () => {
       console.log('Unregistering')
       wallet.contract.off('Registered', onRegistered)
       wallet.contract.off('Touched', onTouched)
+      wallet.contract.on('Winner', onWinner)
     }
   }, [wallet])
-  return board
+  return [board, owners]
+}
+
+const generateHex = () => {
+  const letters = "0123456789ABCDEF";
+  
+  let color = '#';
+
+  for (var i = 0; i < 6; i++)
+     color += letters[(Math.floor(Math.random() * 16))];
+
+  return color
 }
 
 const Buttons = ({ wallet }: { wallet: ReturnType<typeof useWallet> }) => {
   const next = () => wallet?.contract.turn()
-  const register = async () => {  
-    
-   // wallet?.contract.setShip();
-    wallet?.contract.createShip()
-      .then(data => {
-        if(isAddress(data)) {
-          console.log("Success ",data);
-          wallet?.contract.register(data);
-        }
-      })
-      .catch( err => {
-        console.log("Register error ",err);
-      })
-    
-  }
-
+  let i = 0; 
   return (
     <div style={{ display: 'flex', gap: 5, padding: 5 }}>
-      <button onClick={register}>Register</button>
+      <button onClick={async () => {
+       let address = main.FirstShip()
+       try{
+          await wallet?.contract.register(address!)
+       }catch (e){
+          let address = main.SecondShip()
+          await wallet?.contract.register(address!)
+       }
+      }}>Register</button>
       <button onClick={next}>Turn</button>
     </div>
   )
@@ -160,29 +186,27 @@ const Buttons = ({ wallet }: { wallet: ReturnType<typeof useWallet> }) => {
 const CELLS = new Array(100 * 100)
 export const App = () => {
   const wallet = useWallet()
-  const board = useBoard(wallet)
+  const [board, owners] = useBoard(wallet)
   const size = useWindowSize()
   const st = {
     ...size,
     gridTemplateRows: `repeat(${board?.length ?? 0}, 1fr)`,
     gridTemplateColumns: `repeat(${board?.[0]?.length ?? 0}, 1fr)`,
   }
-  const clickMe = (x: GLint, y:GLint) => {
-    wallet?.contract.setShip(x,y);
-    console.log("coordinates ",x,y);
-  }
   return (
     <div className={styles.body}>
       <h1>Welcome to Touché Coulé</h1>
       <div className={styles.grid} style={st}>
-          {CELLS.fill(0).map((_, index) => {
-            const x = Math.floor(index % board?.length ?? 0)
-            const y = Math.floor(index / board?.[0]?.length ?? 0)
-            const background = board?.[x]?.[y] ? 'red' : undefined
-            return (
-              <div onClick={() => clickMe(x,y)} key={index} className={styles.cell} style={{ background }} />
-            )
-          })}
+        {CELLS.fill(0).map((_, index) => {
+          const x = Math.floor(index % board?.length ?? 0)
+          /**console.log("I want know x position:" + x); */
+          const y = Math.floor(index / board?.[0]?.length ?? 0)
+          /**console.log("I want know the y position:" + y);*/
+          const background = board?.[x]?.[y] === -1 ? 'black' :(board?.[x]?.[y] ? owners.find(o => o.owner === board?.[x]?.[y].owner).color : undefined)
+          return (
+            <div key={index} className={styles.cell} style={{ background }} />
+          )
+        })}
       </div>
       <Buttons wallet={wallet} />
     </div>

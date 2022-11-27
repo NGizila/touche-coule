@@ -11,19 +11,12 @@ import 'hardhat-abi-exporter'
 // Go to https://hardhat.org/config/ to learn more
 const config: HardhatUserConfig = {
   solidity: '0.8.16',
-  defaultNetwork: "hardhat",
-  networks: {
-    hardhat: {
-      allowUnlimitedContractSize: true,
-      blockGasLimit: 0x1fffffffffffff
-    }
-  },
   paths: {
     deploy: './deploy',
     sources: './src',
   },
   namedAccounts: {
-    deployer: { default: 1 },
+    deployer: { default: 0 },
     admin: { default: 0 },
     second: { default: 1 },
     random: { default: 8 },
